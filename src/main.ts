@@ -2,7 +2,7 @@ import EditorJS, { type OutputData } from "@editorjs/editorjs";
 import "./style.css";
 import BiblePassageTool from "./tools/BiblePassageTool";
 import SectionMarkerTool from "./tools/SectionMarkerTool";
-import { templates, getTemplateByKey } from "./templates";
+import { getTemplatesByLanguage } from "./templates";
 import Paragraph from "@editorjs/paragraph";
 import Header from "@editorjs/header";
 import List from "@editorjs/list";
@@ -47,11 +47,12 @@ function renderLanguagePicker(): void {
   });
 
   select.addEventListener("change", (event) => {
-    const target = event.target as HTMLSelectElement;
-    currentLang = target.value as LanguageCode;
-    setCurrentLanguage(currentLang);
-    renderSampleText();
-  });
+  const target = event.target as HTMLSelectElement;
+  currentLang = target.value as LanguageCode;
+  setCurrentLanguage(currentLang);
+  renderSampleText();
+  renderTemplatePicker();
+});
 
   host.innerHTML = "";
   host.appendChild(select);
@@ -74,7 +75,9 @@ function renderTemplatePicker(): void {
 
   host.innerHTML = "";
 
-  templates.forEach((template) => {
+  const items = getTemplatesByLanguage(currentLang);
+
+  items.forEach((template) => {
     const option = document.createElement("option");
     option.value = template.key;
     option.textContent = template.label;
@@ -153,37 +156,32 @@ const editor = new EditorJS({
 });
 
 const btnLoadTemplate = getEl<HTMLButtonElement>("btn-load-template");
-btnLoadTemplate.addEventListener("click", () => {
-  void (async () => {
-    const picker = getEl<HTMLSelectElement>("template-picker");
-    const template = getTemplateByKey(picker.value);
 
-    if (!template) {
-      return;
-    }
+btnLoadTemplate.addEventListener("click", async () => {
+  const picker = getEl<HTMLSelectElement>("template-picker");
+  const template = getTemplateByKey(picker.value);
 
-    const output = template.build();
-    await editor.render(output);
-    renderOutput(output);
-  })();
+  if (!template) {
+    return;
+  }
+
+  const output = template.build();
+  await editor.render(output);
+  renderOutput(output);
 });
 
 const btnSave = getEl<HTMLButtonElement>("btn-save");
-btnSave.addEventListener("click", () => {
-  void (async () => {
-    const output = await editor.save();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(output));
-    renderOutput(output);
-  })();
+btnSave.addEventListener("click", async () => {
+  const output = await editor.save();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(output));
+  renderOutput(output);
 });
 
 const btnClear = getEl<HTMLButtonElement>("btn-clear");
-btnClear.addEventListener("click", () => {
-  void (async () => {
-    localStorage.removeItem(STORAGE_KEY);
-    renderOutput({ time: Date.now(), blocks: [], version: "0.0.0" });
-    await editor.clear();
-  })();
+btnClear.addEventListener("click", async () => {
+  localStorage.removeItem(STORAGE_KEY);
+  renderOutput({ time: Date.now(), blocks: [], version: "0.0.0" });
+  await editor.clear();
 });
 
 renderTemplatePicker();
