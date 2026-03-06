@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editor.js Bible Tool (TS)</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <h1>Editor.js Bible Tool</h1>
+        <div class="actions">
+          <button id="btn-save" type="button">Save</button>
+          <button id="btn-clear" type="button">Clear</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel">
+          <h2>Editor</h2>
+          <div id="editorjs" class="editor"></div>
+          <p class="hint">
+            Tip: add a block, choose “Bible Passage”, enter a reference, then
+            fetch.
+          </p>
+        </section>
+
+        <section class="panel">
+          <h2>Saved JSON</h2>
+          <pre id="output" class="output"></pre>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
