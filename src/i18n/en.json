@@ -1,0 +1,22 @@
+{
+  "sectionMarker": {
+    "lookBack": "Look Back",
+    "lookUp": "Look Up",
+    "lookForward": "Look Forward"
+  },
+  "common": {
+    "downloadForOfflineUse": "Download for offline use",
+    "readyForOfflineUse": "Ready for offline use",
+    "readMore": "Read More",
+    "readMoreOnline": "Read More Online",
+    "readPercent": "Read %",
+    "watchPercentOnline": "Watch % online",
+    "watch": "Watch",
+    "listenToPercentOnline": "Listen to % online",
+    "listenToPercent": "Listen to %",
+    "notesClickOutsideToSave": "Notes: (click outside box to save)",
+    "spiritLedInsights": "Spirit-led insights:",
+    "sendNotesAndActionPoints": "Send Notes and Action Points",
+    "bible": "Bible"
+  }
+}

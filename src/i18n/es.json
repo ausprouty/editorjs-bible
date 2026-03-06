@@ -1,0 +1,23 @@
+
+{
+  "sectionMarker": {
+    "lookBack": "Mirar atrás",
+    "lookUp": "Mirar hacia arriba",
+    "lookForward": "Mirar hacia adelante"
+  },
+  "common": {
+    "downloadForOfflineUse": "Descargar para uso sin conexión",
+    "readyForOfflineUse": "Listo para uso sin conexión",
+    "readMore": "Leer más",
+    "readMoreOnline": "Leer más en línea",
+    "readPercent": "Leer %",
+    "watchPercentOnline": "Ver % en línea",
+    "watch": "Ver",
+    "listenToPercentOnline": "Escuchar % en línea",
+    "listenToPercent": "Escuchar %",
+    "notesClickOutsideToSave": "Notas: (haga clic fuera del cuadro para guardar)",
+    "spiritLedInsights": "Reflexiones guiadas por el Espíritu:",
+    "sendNotesAndActionPoints": "Enviar notas y puntos de acción",
+    "bible": "Biblia"
+  }
+}

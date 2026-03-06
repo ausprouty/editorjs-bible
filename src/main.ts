@@ -1,6 +1,12 @@
 import EditorJS, { type OutputData } from "@editorjs/editorjs";
 import "./style.css";
 import BiblePassageTool from "./tools/BiblePassageTool";
+import Paragraph from "@editorjs/paragraph";
+import Header from "@editorjs/header";
+import List from "@editorjs/list";
+import Quote from "@editorjs/quote";
+import Delimiter from "@editorjs/delimiter";
+
 
 const STORAGE_KEY = "editorjs-demo-content";
 
@@ -38,14 +44,42 @@ const editor = new EditorJS({
   autofocus: true,
   data: initialData,
   tools: {
-    biblePassage: {
-      class: BiblePassageTool as any as new (...args: unknown[]) => unknown,
-      config: {
-        endpointPath: "/v2/bible/passage",
-        languageCodeHL: "eng00",
-      },
+  paragraph: {
+    class: Paragraph,
+    inlineToolbar: ["link", "bold", "italic"],
+  },
+
+  header: {
+    class: Header as any,
+    inlineToolbar: ["link", "bold", "italic"],
+    config: {
+      levels: [2, 3, 4],
+      defaultLevel: 2,
     },
   },
+
+  list: {
+    class: List as any,
+    inlineToolbar: true,
+  },
+
+  quote: {
+    class: Quote as any,
+    inlineToolbar: true,
+  },
+
+  delimiter: {
+    class: Delimiter as any,
+  },
+
+  biblePassage: {
+    class: BiblePassageTool as any,
+    config: {
+      endpointPath: "/v2/bible/passage",
+      languageCodeHL: "eng00",
+    },
+  },
+},
 });
 
 const btnSave = getEl<HTMLButtonElement>("btn-save");

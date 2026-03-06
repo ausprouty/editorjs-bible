@@ -1,5 +1,8 @@
+import { http } from "../lib/http";
+
 type BiblePassageToolConfig = {
-  endpointBase?: string;
+   endpointPath?: string;
+  languageCodeHL?: string;
 };
 
 type BiblePassageToolData = {
@@ -31,11 +34,20 @@ export default class BiblePassageTool {
   }
 
   public static get sanitize() {
-    return {
-      reference: {},
-      passage: { br: true },
-    };
-  }
+  return {
+    reference: {},
+    passage: {
+      br: true,
+      p: true,
+      div: {
+        class: true,
+      },
+      sup: {
+        class: true,
+      },
+    },
+  };
+}
 
   private readonly readOnly: boolean;
   private readonly config: BiblePassageToolConfig;
@@ -85,10 +97,7 @@ export default class BiblePassageTool {
     this.passageEl.className = "bible-passage-tool__passage";
 
     if (this.data.passage) {
-      this.passageEl.innerHTML = this.escapeHtml(this.data.passage).replace(
-        /\n/g,
-        "<br>",
-      );
+      this.passageEl.innerHTML = this.data.passage;
     }
 
     if (!this.readOnly) {
@@ -115,70 +124,53 @@ export default class BiblePassageTool {
   }
 
   private async fetchPassage(): Promise<void> {
-    const reference = this.referenceInput
-      ? this.referenceInput.value.trim()
-      : this.data.reference.trim();
+  const reference = this.referenceInput
+    ? this.referenceInput.value.trim()
+    : this.data.reference.trim();
 
-    if (!reference) {
-      this.setStatus("Please enter a Bible reference.", "error");
-      return;
-    }
-
-    this.setLoading(true);
-    this.setStatus("Loading passage...", "info");
-
-    try {
-      const endpointBase =
-        this.config.endpointBase ??
-        "https://api.mylanguage.net.au/api/passage/en/";
-
-      const url = endpointBase + encodeURIComponent(reference);
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { Accept: "application/json, text/plain, */*" },
-      });
-
-      if (!response.ok) {
-        throw new Error(`API returned ${response.status}`);
-      }
-
-      const contentType = response.headers.get("content-type") ?? "";
-      let passageText = "";
-
-      if (contentType.includes("application/json")) {
-        const json: unknown = await response.json();
-        passageText = this.extractPassageFromJson(json);
-      } else {
-        passageText = await response.text();
-      }
-
-      passageText = passageText.trim();
-      if (!passageText) {
-        throw new Error("No passage text returned from API");
-      }
-
-      this.data.reference = reference;
-      this.data.passage = passageText;
-
-      if (this.passageEl) {
-        this.passageEl.innerHTML = this.escapeHtml(this.data.passage).replace(
-          /\n/g,
-          "<br>",
-        );
-      }
-
-      this.setStatus("Passage loaded.", "success");
-    } catch (err) {
-      console.error("Bible passage fetch failed:", err);
-      this.setStatus(
-        "Could not load passage. Check the reference and API response.",
-        "error",
-      );
-    } finally {
-      this.setLoading(false);
-    }
+  if (!reference) {
+    this.setStatus("Please enter a Bible reference.", "error");
+    return;
   }
+
+  this.setLoading(true);
+  this.setStatus("Loading passage...", "info");
+
+  try {
+    const endpointPath = this.config.endpointPath ?? "/v2/bible/passage";
+    const languageCodeHL = this.config.languageCodeHL ?? "eng00";
+
+    const payload = {
+      entry: reference,
+      languageCodeHL: languageCodeHL,
+    };
+
+    const res = await http.post(endpointPath, payload);
+    const data: unknown = res && res.data ? res.data : res;
+    const passageText = this.extractPassageFromJson(data).trim();
+
+    if (!passageText) {
+      throw new Error("No passage text returned from API");
+    }
+
+    this.data.reference = reference;
+    this.data.passage = passageText;
+
+    if (this.passageEl) {
+      this.passageEl.innerHTML = this.data.passage;
+    }
+
+    this.setStatus("Passage loaded.", "success");
+  } catch (err) {
+    console.error("Bible passage fetch failed:", err);
+    this.setStatus(
+      "Could not load passage. Check the reference and API response.",
+      "error",
+    );
+  } finally {
+    this.setLoading(false);
+  }
+}
 
   private extractPassageFromJson(json: unknown): string {
     if (!json) return "";
