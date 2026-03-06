@@ -190,3 +190,25 @@ button:hover {
   color: #374151;
   font-style: italic;
 }
+.std-text {
+  font-size: 16px;
+  line-height: 1.7;
+  background-color: #2e7d32;F;
+}
+
+.section-marker-tool {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.section-marker-tool__select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+.section-marker-tool__preview {
+  font-weight: 700;
+  font-size: 1rem;
+}
