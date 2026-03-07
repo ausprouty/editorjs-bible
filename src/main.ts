@@ -1,7 +1,7 @@
 import EditorJS, { type OutputData } from "@editorjs/editorjs";
-import "./style.css";
-import BiblePassageTool from "./tools/BiblePassageTool";
-import SectionMarkerTool from "./tools/SectionMarkerTool";
+import "./styles/system.css";
+import BiblePassageTool from "./tools/BiblePassageTool/BiblePassageTool";
+import SectionMarkerTool from "./tools/SectionMarker/SectionMarkerTool";
 import { getTemplatesByLanguage } from "./templates";
 import Paragraph from "@editorjs/paragraph";
 import Header from "@editorjs/header";

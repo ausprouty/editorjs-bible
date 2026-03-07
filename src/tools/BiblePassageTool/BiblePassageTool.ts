@@ -1,13 +1,15 @@
-import { http } from "../lib/http";
+import { http } from "../../lib/http";
+import "./BiblePassageTool.css";
 
 type BiblePassageToolConfig = {
-   endpointPath?: string;
+  endpointPath?: string;
   languageCodeHL?: string;
 };
 
 type BiblePassageToolData = {
   reference: string;
   passage: string;
+  isOpen?: boolean;
 };
 
 type EditorJSToolConstructorArgs = {
@@ -34,20 +36,21 @@ export default class BiblePassageTool {
   }
 
   public static get sanitize() {
-  return {
-    reference: {},
-    passage: {
-      br: true,
-      p: true,
-      div: {
-        class: true,
+    return {
+      reference: {},
+      passage: {
+        br: true,
+        p: true,
+        div: {
+          class: true,
+        },
+        sup: {
+          class: true,
+        },
       },
-      sup: {
-        class: true,
-      },
-    },
-  };
-}
+      isOpen: {},
+    };
+  }
 
   private readonly readOnly: boolean;
   private readonly config: BiblePassageToolConfig;
@@ -58,6 +61,7 @@ export default class BiblePassageTool {
   private referenceInput: HTMLInputElement | null = null;
   private fetchButton: HTMLButtonElement | null = null;
   private statusEl: HTMLDivElement | null = null;
+  private headerEl: HTMLButtonElement | null = null;
   private passageEl: HTMLDivElement | null = null;
 
   public constructor(args: EditorJSToolConstructorArgs) {
@@ -67,6 +71,9 @@ export default class BiblePassageTool {
     this.data = {
       reference: args.data?.reference ? String(args.data.reference) : "",
       passage: args.data?.passage ? String(args.data.passage) : "",
+      isOpen: typeof args.data?.isOpen === "boolean"
+        ? args.data.isOpen
+        : true,
     };
   }
 
@@ -79,7 +86,8 @@ export default class BiblePassageTool {
 
     this.referenceInput = document.createElement("input");
     this.referenceInput.type = "text";
-    this.referenceInput.placeholder = "Enter Bible reference, e.g. John 3:16-17";
+    this.referenceInput.placeholder =
+      "Enter Bible reference, e.g. John 3:16-17";
     this.referenceInput.value = this.data.reference;
     this.referenceInput.className = "bible-passage-tool__input";
     this.referenceInput.disabled = this.readOnly;
@@ -93,11 +101,16 @@ export default class BiblePassageTool {
     this.statusEl = document.createElement("div");
     this.statusEl.className = "bible-passage-tool__status";
 
+    this.headerEl = document.createElement("button");
+    this.headerEl.type = "button";
+    this.headerEl.className = "bible-passage-tool__header";
+    this.headerEl.style.display = "none";
+
     this.passageEl = document.createElement("div");
     this.passageEl.className = "bible-passage-tool__passage";
 
     if (this.data.passage) {
-      this.passageEl.innerHTML = this.data.passage;
+      this.updateDisplay();
     }
 
     if (!this.readOnly) {
@@ -111,6 +124,11 @@ export default class BiblePassageTool {
           void this.fetchPassage();
         }
       });
+
+      this.headerEl.addEventListener("click", () => {
+        this.data.isOpen = !this.data.isOpen;
+        this.syncOpenState();
+      });
     }
 
     controls.appendChild(this.referenceInput);
@@ -118,59 +136,102 @@ export default class BiblePassageTool {
 
     this.wrapper.appendChild(controls);
     this.wrapper.appendChild(this.statusEl);
+    this.wrapper.appendChild(this.headerEl);
     this.wrapper.appendChild(this.passageEl);
 
     return this.wrapper;
   }
 
   private async fetchPassage(): Promise<void> {
-  const reference = this.referenceInput
-    ? this.referenceInput.value.trim()
-    : this.data.reference.trim();
+    const reference = this.referenceInput
+      ? this.referenceInput.value.trim()
+      : this.data.reference.trim();
 
-  if (!reference) {
-    this.setStatus("Please enter a Bible reference.", "error");
-    return;
-  }
-
-  this.setLoading(true);
-  this.setStatus("Loading passage...", "info");
-
-  try {
-    const endpointPath = this.config.endpointPath ?? "/v2/bible/passage";
-    const languageCodeHL = this.config.languageCodeHL ?? "eng00";
-
-    const payload = {
-      entry: reference,
-      languageCodeHL: languageCodeHL,
-    };
-
-    const res = await http.post(endpointPath, payload);
-    const data: unknown = res && res.data ? res.data : res;
-    const passageText = this.extractPassageFromJson(data).trim();
-
-    if (!passageText) {
-      throw new Error("No passage text returned from API");
+    if (!reference) {
+      this.setStatus("Please enter a Bible reference.", "error");
+      return;
     }
 
-    this.data.reference = reference;
-    this.data.passage = passageText;
+    this.setLoading(true);
+    this.setStatus("Loading passage...", "info");
+
+    try {
+      const endpointPath = this.config.endpointPath ?? "/v2/bible/passage";
+      const languageCodeHL = this.config.languageCodeHL ?? "eng00";
+
+      const payload = {
+        entry: reference,
+        languageCodeHL,
+      };
+
+      const res = await http.post(endpointPath, payload);
+      const data: unknown = res && res.data ? res.data : res;
+      const passageText = this.extractPassageFromJson(data).trim();
+
+      if (!passageText) {
+        throw new Error("No passage text returned from API");
+      }
+
+      this.data.reference = reference;
+      this.data.passage = passageText;
+      this.data.isOpen = true;
+
+      this.updateDisplay();
+      this.setStatus("Passage loaded.", "success");
+    } catch (err) {
+      console.error("Bible passage fetch failed:", err);
+      this.setStatus(
+        "Could not load passage. Check the reference and API response.",
+        "error",
+      );
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  private updateDisplay(): void {
+    if (this.headerEl) {
+      this.headerEl.innerHTML = `
+        <span class="bible-passage-tool__header-icon">✟</span>
+        <span class="bible-passage-tool__header-text">
+          Read ${this.escapeHtml(this.data.reference)}
+        </span>
+        <span class="bible-passage-tool__header-toggle">
+          ${this.data.isOpen ? "−" : "+"}
+        </span>
+      `;
+      this.headerEl.style.display = "flex";
+    }
 
     if (this.passageEl) {
-      this.passageEl.innerHTML = this.data.passage;
+      this.passageEl.innerHTML = this.formatPassage(this.data.passage);
     }
 
-    this.setStatus("Passage loaded.", "success");
-  } catch (err) {
-    console.error("Bible passage fetch failed:", err);
-    this.setStatus(
-      "Could not load passage. Check the reference and API response.",
-      "error",
-    );
-  } finally {
-    this.setLoading(false);
+    this.syncOpenState();
   }
-}
+
+  private syncOpenState(): void {
+    if (!this.passageEl || !this.headerEl) return;
+
+    if (this.data.isOpen) {
+      this.passageEl.style.display = "block";
+      this.headerEl.dataset.open = "true";
+    } else {
+      this.passageEl.style.display = "none";
+      this.headerEl.dataset.open = "false";
+    }
+
+    const toggle = this.headerEl.querySelector(
+      ".bible-passage-tool__header-toggle",
+    );
+    if (toggle) {
+      toggle.textContent = this.data.isOpen ? "−" : "+";
+    }
+  }
+
+  private formatPassage(text: string): string {
+    return this.escapeHtml(text).replace(/\n/g, "<br>");
+  }
 
   private extractPassageFromJson(json: unknown): string {
     if (!json) return "";
@@ -211,7 +272,6 @@ export default class BiblePassageTool {
         return lines.filter(Boolean).join("\n");
       }
 
-      // Fallback: stringify unknown shape for debugging
       try {
         return JSON.stringify(obj, null, 2);
       } catch {
@@ -230,6 +290,7 @@ export default class BiblePassageTool {
     return {
       reference: ref,
       passage: this.data.passage || "",
+      isOpen: this.data.isOpen,
     };
   }
 

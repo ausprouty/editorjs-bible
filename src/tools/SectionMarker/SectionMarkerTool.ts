@@ -1,6 +1,7 @@
 import type { BlockTool, ToolConfig } from "@editorjs/editorjs";
-import { getCurrentLanguage } from "../i18n/languageState";
-import { t } from "../i18n";
+import { getCurrentLanguage } from "../../i18n/languageState";
+import "./SectionMarkerTool.css";
+import { t } from "../../i18n";
 
 type SectionTheme = "back" | "up" | "forward";
 

@@ -1,0 +1,50 @@
+.bible-passage-tool {
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.bible-passage-tool__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.bible-passage-tool__input {
+  flex: 1 1 260px;
+  min-width: 200px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.bible-passage-tool__button {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.bible-passage-tool__status {
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.bible-passage-tool__status[data-state="error"] {
+  color: #b42318;
+}
+
+.bible-passage-tool__status[data-state="success"] {
+  color: #067647;
+}
+
+.bible-passage-tool__status[data-state="info"] {
+  color: #175cd3;
+}
+
+.bible-passage-tool__passage {
+  line-height: 1.6;
+}
