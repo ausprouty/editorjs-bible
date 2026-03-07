@@ -40,9 +40,7 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background: #fbfbfc;
-}
+
 
 .layout {
   display: grid;
