@@ -18,6 +18,8 @@
     "notesClickOutsideToSave": "Notes : (cliquez à l’extérieur de la zone pour enregistrer)",
     "spiritLedInsights": "Réflexions conduites par l’Esprit :",
     "sendNotesAndActionPoints": "Envoyer les notes et les points d’action",
-    "bible": "Bible"
+    "bible": "Bible",
+    "edit": "Modifier",
+  "done": "Terminé"
   }
 }

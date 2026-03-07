@@ -1,10 +1,10 @@
 
-import en from "./en.json";
-import fr from "./fr.json";
-import es from "./es.json";
-import pt from "./pt.json";
-import zhCN from "./zh-CN.json";
-import zhTW from "./zh-TW.json";
+import en from ".locales/en.json";
+import fr from ".locales/fr.json";
+import es from ".locales/es.json";
+import pt from ".locales/pt.json";
+import zhCN from ".locales/zh-CN.json";
+import zhTW from ".locales/zh-TW.json";
 
 
 export type LanguageCode =
