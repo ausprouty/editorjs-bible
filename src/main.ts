@@ -11,7 +11,10 @@ import {
   type LanguageCode,
 } from "./i18n";
 import "./styles/system.css";
-import { getTemplatesByLanguage } from "./templates";
+import {
+  getTemplatesByLanguage,
+  loadTemplateFile,
+} from "./templates";
 
 const STORAGE_KEY = "editorjs-demo-content";
 
@@ -62,7 +65,6 @@ function renderLanguagePicker(): void {
     const target = event.target as HTMLSelectElement;
     currentLang = target.value as LanguageCode;
     setCurrentLanguage(currentLang);
-    renderSampleText();
     renderTemplatePicker();
   });
 
@@ -75,15 +77,7 @@ function renderOutput(output: OutputData): void {
   pre.textContent = JSON.stringify(output, null, 2);
 }
 
-function renderSampleText(): void {
-  const host = document.getElementById("sample-text");
 
-  if (!host) {
-    return;
-  }
-
-  host.textContent = t(currentLang, "sectionMarker.lookBack");
-}
 
 function renderTemplatePicker(): void {
   const host = document.getElementById("template-picker");
@@ -129,15 +123,26 @@ btnClear.addEventListener("click", async () => {
 const btnLoadTemplate = getEl<HTMLButtonElement>("btn-load-template");
 btnLoadTemplate.addEventListener("click", async () => {
   const picker = getEl<HTMLSelectElement>("template-picker");
-  const template = getTemplatesByLanguage(currentLang).find(
-    (item) => item.key === picker.value
+
+  const templateFile = await loadTemplateFile(
+    picker.value,
+    currentLang,
   );
 
-  if (!template) {
+  if (!templateFile) {
     return;
   }
 
-  const output = template.build();
+  console.log("loaded template file:", templateFile);
+
+  const output: OutputData = {
+    time: Date.now(),
+    version: "2.30.0",
+    blocks: templateFile.blocks,
+  };
+
+  console.log("output passed to editor.render:", output);
+
   await editor.render(output);
   renderOutput(output);
 });
@@ -150,5 +155,4 @@ btnSave.addEventListener("click", async () => {
 });
 
 renderLanguagePicker();
-renderSampleText();
 renderTemplatePicker();

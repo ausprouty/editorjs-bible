@@ -1,7 +1,14 @@
 import type { OutputData } from "@editorjs/editorjs";
 
-export interface LessonTemplate {
+export interface LessonTemplateIndexItem {
   key: string;
   label: string;
-  build(): OutputData;
+  language: string;
+  path: string;
+}
+
+export interface LessonTemplateFile {
+  key: string;
+  label: string;
+  blocks: OutputData["blocks"];
 }

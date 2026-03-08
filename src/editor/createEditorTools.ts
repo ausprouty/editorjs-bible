@@ -1,3 +1,8 @@
+import type {
+  ToolConstructable,
+  ToolSettings,
+} from "@editorjs/editorjs";
+
 import Delimiter from "@editorjs/delimiter";
 import Header from "@editorjs/header";
 import ImageTool from "@editorjs/image";
@@ -18,10 +23,12 @@ import NotesAreaTool from "../tools/NotesAreaTool/NotesAreaTool";
 import SectionMarkerTool from
   "../tools/SectionMarker/SectionMarkerTool";
 
-export function createEditorTools() {
+type EditorTools = Record<string, ToolConstructable | ToolSettings>;
+
+export function createEditorTools(): EditorTools {
   return {
     biblePassage: {
-      class: BiblePassageTool as any,
+      class: BiblePassageTool as unknown as ToolConstructable,
       config: {
         endpointPath: DEFAULT_BIBLE_ENDPOINT_PATH,
         languageCodeHL: DEFAULT_BIBLE_LANGUAGE_CODE,
@@ -29,15 +36,15 @@ export function createEditorTools() {
     },
 
     collapsibleSection: {
-      class: CollapsibleSectionTool as any,
+      class: CollapsibleSectionTool as unknown as ToolConstructable,
     },
 
     delimiter: {
-      class: Delimiter as any,
+      class: Delimiter as unknown as ToolConstructable,
     },
 
     header: {
-      class: Header as any,
+      class: Header as unknown as ToolConstructable,
       config: {
         defaultLevel: 2,
         levels: [2, 3, 4],
@@ -46,7 +53,7 @@ export function createEditorTools() {
     },
 
     image: {
-      class: ImageTool,
+      class: ImageTool as unknown as ToolConstructable,
       config: {
         endpoints: {
           byFile: IMAGE_UPLOAD_URL,
@@ -55,26 +62,26 @@ export function createEditorTools() {
     },
 
     list: {
-      class: List as any,
+      class: List as unknown as ToolConstructable,
       inlineToolbar: true,
     },
 
     notesArea: {
-      class: NotesAreaTool as any,
+      class: NotesAreaTool as unknown as ToolConstructable,
     },
 
     paragraph: {
-      class: Paragraph,
+      class: Paragraph as unknown as ToolConstructable,
       inlineToolbar: ["link", "bold", "italic"],
     },
 
     quote: {
-      class: Quote as any,
+      class: Quote as unknown as ToolConstructable,
       inlineToolbar: true,
     },
 
     sectionMarker: {
-      class: SectionMarkerTool as any,
+      class: SectionMarkerTool as unknown as ToolConstructable,
     },
   };
 }
