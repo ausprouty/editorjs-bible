@@ -1,13 +1,6 @@
-import EditorJS, { type OutputData } from "@editorjs/editorjs";
-import "./styles/system.css";
-import BiblePassageTool from "./tools/BiblePassageTool/BiblePassageTool";
-import SectionMarkerTool from "./tools/SectionMarker/SectionMarkerTool";
-import { getTemplatesByLanguage } from "./templates";
-import Paragraph from "@editorjs/paragraph";
-import Header from "@editorjs/header";
-import List from "@editorjs/list";
-import Quote from "@editorjs/quote";
-import Delimiter from "@editorjs/delimiter";
+import { type OutputData } from "@editorjs/editorjs";
+
+import { createEditor } from "./editor/createEditor";
 import {
   getCurrentLanguage,
   setCurrentLanguage,
@@ -17,6 +10,8 @@ import {
   t,
   type LanguageCode,
 } from "./i18n";
+import "./styles/system.css";
+import { getTemplatesByLanguage } from "./templates";
 
 const STORAGE_KEY = "editorjs-demo-content";
 
@@ -24,14 +19,31 @@ let currentLang: LanguageCode = getCurrentLanguage();
 
 function getEl<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
+
   if (!el) {
     throw new Error(`Missing element: #${id}`);
   }
+
   return el as T;
+}
+
+function loadInitialData(): OutputData | undefined {
+  const raw = localStorage.getItem(STORAGE_KEY);
+
+  if (!raw) {
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(raw) as OutputData;
+  } catch {
+    return undefined;
+  }
 }
 
 function renderLanguagePicker(): void {
   const host = document.getElementById("language-picker");
+
   if (!host) {
     return;
   }
@@ -47,19 +59,25 @@ function renderLanguagePicker(): void {
   });
 
   select.addEventListener("change", (event) => {
-  const target = event.target as HTMLSelectElement;
-  currentLang = target.value as LanguageCode;
-  setCurrentLanguage(currentLang);
-  renderSampleText();
-  renderTemplatePicker();
-});
+    const target = event.target as HTMLSelectElement;
+    currentLang = target.value as LanguageCode;
+    setCurrentLanguage(currentLang);
+    renderSampleText();
+    renderTemplatePicker();
+  });
 
   host.innerHTML = "";
   host.appendChild(select);
 }
 
+function renderOutput(output: OutputData): void {
+  const pre = getEl<HTMLPreElement>("output");
+  pre.textContent = JSON.stringify(output, null, 2);
+}
+
 function renderSampleText(): void {
   const host = document.getElementById("sample-text");
+
   if (!host) {
     return;
   }
@@ -69,6 +87,7 @@ function renderSampleText(): void {
 
 function renderTemplatePicker(): void {
   const host = document.getElementById("template-picker");
+
   if (!host || !(host instanceof HTMLSelectElement)) {
     return;
   }
@@ -85,81 +104,34 @@ function renderTemplatePicker(): void {
   });
 }
 
-function loadInitialData(): OutputData | undefined {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) {
-    return undefined;
-  }
-
-  try {
-    return JSON.parse(raw) as OutputData;
-  } catch {
-    return undefined;
-  }
-}
-
-function renderOutput(output: OutputData): void {
-  const pre = getEl<HTMLPreElement>("output");
-  pre.textContent = JSON.stringify(output, null, 2);
-}
-
 const initialData = loadInitialData();
+
 if (initialData) {
   renderOutput(initialData);
 }
 
-const editor = new EditorJS({
-  holder: "editorjs",
-  autofocus: true,
+const editor = createEditor({
   data: initialData,
-  tools: {
-    paragraph: {
-      class: Paragraph,
-      inlineToolbar: ["link", "bold", "italic"],
-    },
+  holder: "editorjs",
+});
 
-    header: {
-      class: Header as any,
-      inlineToolbar: ["link", "bold", "italic"],
-      config: {
-        levels: [2, 3, 4],
-        defaultLevel: 2,
-      },
-    },
-
-    list: {
-      class: List as any,
-      inlineToolbar: true,
-    },
-
-    quote: {
-      class: Quote as any,
-      inlineToolbar: true,
-    },
-
-    delimiter: {
-      class: Delimiter as any,
-    },
-
-    sectionMarker: {
-      class: SectionMarkerTool as any,
-    },
-
-    biblePassage: {
-      class: BiblePassageTool as any,
-      config: {
-        endpointPath: "/v2/bible/passage",
-        languageCodeHL: "eng00",
-      },
-    },
-  },
+const btnClear = getEl<HTMLButtonElement>("btn-clear");
+btnClear.addEventListener("click", async () => {
+  localStorage.removeItem(STORAGE_KEY);
+  renderOutput({
+    blocks: [],
+    time: Date.now(),
+    version: "0.0.0",
+  });
+  await editor.clear();
 });
 
 const btnLoadTemplate = getEl<HTMLButtonElement>("btn-load-template");
-
 btnLoadTemplate.addEventListener("click", async () => {
   const picker = getEl<HTMLSelectElement>("template-picker");
-  const template = getTemplateByKey(picker.value);
+  const template = getTemplatesByLanguage(currentLang).find(
+    (item) => item.key === picker.value
+  );
 
   if (!template) {
     return;
@@ -177,13 +149,6 @@ btnSave.addEventListener("click", async () => {
   renderOutput(output);
 });
 
-const btnClear = getEl<HTMLButtonElement>("btn-clear");
-btnClear.addEventListener("click", async () => {
-  localStorage.removeItem(STORAGE_KEY);
-  renderOutput({ time: Date.now(), blocks: [], version: "0.0.0" });
-  await editor.clear();
-});
-
-renderTemplatePicker();
 renderLanguagePicker();
 renderSampleText();
+renderTemplatePicker();
