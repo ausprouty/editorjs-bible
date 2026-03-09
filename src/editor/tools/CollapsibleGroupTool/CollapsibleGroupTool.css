@@ -50,10 +50,11 @@
 .cg-tool__body {
   padding: 14px;
   border-top: 1px solid #e6ebf1;
+  min-height: 90px;
 }
 
 .cg-tool__editor-holder {
-  min-height: 40px;
+  min-height: 80px;
 }
 
 .cg-tool .ce-block__content,

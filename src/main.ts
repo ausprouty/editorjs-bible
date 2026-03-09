@@ -107,6 +107,7 @@ if (initialData) {
 const editor = createEditor({
   data: initialData,
   holder: "editorjs",
+  lang: currentLang,
 });
 
 const btnClear = getEl<HTMLButtonElement>("btn-clear");

@@ -1,3 +1,5 @@
+
+import { t, type LanguageCode } from "../i18n";
 import type {
   ToolConstructable,
   ToolSettings,
@@ -15,19 +17,21 @@ import {
   IMAGE_UPLOAD_URL,
 } from "./editorConfig";
 import BiblePassageTool from
-  "./editor/tools/BiblePassageTool/BiblePassageTool";
+  "./tools/BiblePassageTool/BiblePassageTool";
 import CollapsibleGroupTool from
-  "./editor/tools/CollapsibleGroupTool/CollapsibleGroupTool";
+  "./tools/CollapsibleGroupTool/CollapsibleGroupTool";
 import CollapsibleSectionTool from
-  "./editor/tools/CollapsibleSectionTool/CollapsibleSectionTool";
+  "./tools/CollapsibleSectionTool/CollapsibleSectionTool";
 import NotesAreaTool from
-  "./editor/tools/NotesAreaTool/NotesAreaTool";
+  "./tools/NotesAreaTool/NotesAreaTool";
 import SectionMarkerTool from
-  "./editor/tools/SectionMarker/SectionMarkerTool";
+  "./tools/SectionMarker/SectionMarkerTool";
+import VideoTool from
+  "./tools/VideoTool/VideoTool";
 
 type EditorTools = Record<string, ToolConstructable | ToolSettings>;
 
-function createNestedEditorTools(): EditorTools {
+function createNestedEditorTools(lang: LanguageCode): EditorTools {
   return {
     biblePassage: {
       class: BiblePassageTool as unknown as ToolConstructable,
@@ -75,7 +79,7 @@ function createNestedEditorTools(): EditorTools {
   };
 }
 
-export function createEditorTools(): EditorTools {
+export function createEditorTools(lang: LanguageCode): EditorTools {
   return {
     biblePassage: {
       class: BiblePassageTool as unknown as ToolConstructable,
@@ -89,7 +93,7 @@ export function createEditorTools(): EditorTools {
       class: CollapsibleGroupTool as unknown as ToolConstructable,
       config: {
         placeholder: "Group heading",
-        tools: createNestedEditorTools(),
+        tools: createNestedEditorTools(lang),
       },
     },
 
@@ -141,5 +145,19 @@ export function createEditorTools(): EditorTools {
     sectionMarker: {
       class: SectionMarkerTool as unknown as ToolConstructable,
     },
+    videoEmbed: {
+    class: VideoTool as any,
+    config: {
+      labels: {
+        untitledVideo: t(lang, "untitledVideo"),
+        watchOnlineTemplate: t(lang, "watchPassageOnline"),
+        titleLabel: t(lang, "title"),
+        urlLabel: t(lang, "videoUrl"),
+        startLabel: t(lang, "startTime"),
+        endLabel: t(lang, "endTime"),
+        previewUnavailable: t(lang, "videoPreviewUnavailable"),
+      },
+    },
+  },
   };
 }

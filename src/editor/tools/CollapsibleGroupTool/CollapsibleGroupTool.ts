@@ -58,13 +58,20 @@ export default class CollapsibleGroupTool {
     this.config = config ?? { tools: {} };
 
     this.data = {
-      title: data?.title ?? "",
-      isOpen: data?.isOpen ?? true,
-      content: data?.content ?? {
-        time: Date.now(),
-        blocks: [],
+  title: data?.title ?? "",
+  isOpen: data?.isOpen ?? true,
+  content: data?.content ?? {
+    time: Date.now(),
+    blocks: [
+      {
+        type: "paragraph",
+        data: {
+          text: "",
+        },
       },
-    };
+    ],
+  },
+};
   }
 
   public render(): HTMLElement {

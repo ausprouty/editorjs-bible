@@ -1,19 +1,22 @@
 import EditorJS, { type OutputData } from "@editorjs/editorjs";
 
 import { createEditorTools } from "./createEditorTools";
+import type { LanguageCode } from "../i18n";
 
 type CreateEditorOptions = {
   data?: OutputData;
   holder: string;
+  lang: LanguageCode;
 };
 
-export function createEditor(
-  options: CreateEditorOptions
-): EditorJS {
+export function createEditor({
+  holder,
+  data,
+  lang,
+}: CreateEditorOptions) {
   return new EditorJS({
-    autofocus: true,
-    data: options.data,
-    holder: options.holder,
-    tools: createEditorTools(),
+    holder,
+    data,
+    tools: createEditorTools(lang),
   });
 }
