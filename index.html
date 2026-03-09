@@ -2,39 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
     <title>Editor.js Bible Tool (TS)</title>
   </head>
   <body>
-    <div id="app">
-      <header class="topbar">
-        <h1>Editor.js Editor</h1>
-         <div id="language-picker"></div>
-        <div id="sample-text"></div>
-       <select id="template-picker"></select>
-        <button id="btn-load-template">Load Template</button>
-        <div class="actions">
-          <button id="btn-save" type="button">Save</button>
-          <button id="btn-clear" type="button">Clear</button>
-        </div>
-      </header>
-
-      <main class="layout">
-        <section class="panel">
-          <h2>Editor</h2>
-          <div id="editorjs" class="editor"></div>
-          <p class="hint">
-            Tip: add a block, choose “Bible Passage”, enter a reference, then
-            fetch.
-          </p>
-        </section>
-
-        <section class="panel">
-          <h2>Saved JSON</h2>
-          <pre id="output" class="output"></pre>
-        </section>
-      </main>
-    </div>
+    <div id="app"></div>
 
     <script type="module" src="/src/main.ts"></script>
   </body>
