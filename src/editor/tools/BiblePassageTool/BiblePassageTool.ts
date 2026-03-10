@@ -53,6 +53,7 @@ export default class BiblePassageTool {
   }
 
   private readonly readOnly: boolean;
+  private isEditing = false;
   private readonly config: BiblePassageToolConfig;
 
   private data: BiblePassageToolData;
@@ -68,7 +69,6 @@ export default class BiblePassageTool {
   public constructor(args: EditorJSToolConstructorArgs) {
     this.readOnly = Boolean(args.readOnly);
     this.config = args.config || {};
-
     this.data = {
       reference: args.data?.reference ? String(args.data.reference) : "",
       passage: args.data?.passage ? String(args.data.passage) : "",
@@ -76,6 +76,8 @@ export default class BiblePassageTool {
         ? args.data.isOpen
         : true,
     };
+
+    this.isEditing = !this.data.passage;
   }
 
    public render(): HTMLElement {
@@ -112,7 +114,6 @@ export default class BiblePassageTool {
 
     if (this.data.passage) {
       this.updateDisplay();
-      this.hideControlsAfterFetch();
     }
 
     if (!this.readOnly) {
@@ -152,7 +153,7 @@ export default class BiblePassageTool {
     this.wrapper.appendChild(this.statusEl);
     this.wrapper.appendChild(this.headerEl);
     this.wrapper.appendChild(this.passageEl);
-
+    this.syncOpenState();
     return this.wrapper;
   }
 
@@ -189,10 +190,10 @@ export default class BiblePassageTool {
       this.data.reference = reference;
       this.data.passage = passageText;
       this.data.isOpen = true;
+      this.isEditing = false;
 
       this.updateDisplay();
       this.setStatus("Passage loaded.", "success");
-      this.hideControlsAfterFetch();
     } catch (err) {
       console.error("Bible passage fetch failed:", err);
       this.setStatus(
@@ -206,17 +207,19 @@ export default class BiblePassageTool {
 
 
   private showControlsForEditing(): void {
-    if (this.controlsEl) {
-      this.controlsEl.style.display = "flex";
-    }
+    this.isEditing = true;
+    this.syncOpenState();
+
     if (this.statusEl) {
       this.statusEl.style.display = "none";
     }
+
     if (this.referenceInput) {
       this.referenceInput.disabled = false;
       this.referenceInput.focus();
       this.referenceInput.select();
     }
+
     if (this.fetchButton) {
       this.fetchButton.disabled = false;
       this.fetchButton.textContent = "Fetch passage";
@@ -247,16 +250,21 @@ export default class BiblePassageTool {
     this.syncOpenState();
   }
 
-  private syncOpenState(): void {
-    if (!this.passageEl || !this.headerEl) return;
 
-    if (this.data.isOpen) {
-      this.passageEl.style.display = "block";
-      this.headerEl.dataset.open = "true";
-    } else {
-      this.passageEl.style.display = "none";
-      this.headerEl.dataset.open = "false";
+ private syncOpenState(): void {
+    if (!this.headerEl || !this.passageEl || !this.controlsEl) {
+      return;
     }
+
+    if (this.isEditing) {
+      this.controlsEl.style.display = "flex";
+      this.passageEl.style.display = this.data.isOpen ? "block" : "none";
+    } else {
+      this.controlsEl.style.display = "none";
+      this.passageEl.style.display = this.data.isOpen ? "block" : "none";
+    }
+
+    this.headerEl.dataset.open = this.data.isOpen ? "true" : "false";
 
     const toggle = this.headerEl.querySelector(
       ".bible-passage-tool__header-toggle",
@@ -266,14 +274,7 @@ export default class BiblePassageTool {
     }
   }
 
-  private hideControlsAfterFetch(): void {
-    if (this.controlsEl) {
-      this.controlsEl.style.display = "none";
-    }
-    if (this.statusEl) {
-      this.statusEl.style.display = "none";
-    }
-  }
+  
 
   private formatPassage(text: string): string {
     return text;

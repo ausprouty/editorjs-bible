@@ -5,18 +5,19 @@ import { computed, ref, useTemplateRef, watch } from "vue";
 import DeveloperPanel from "../components/editor/DeveloperPanel.vue";
 import EditorHost from "../components/editor/EditorHost.vue";
 import {
-  getCurrentLanguage,
-  setCurrentLanguage,
-} from "../i18n/languageState";
-import {
   languageOptions,
   type LanguageCode,
 } from "../i18n";
+import {
+  getCurrentLanguage,
+  setCurrentLanguage,
+} from "../i18n/languageState";
 import {
   getTemplatesByLanguage,
   loadTemplateFile,
 } from "../templates";
 
+const showDeveloperPanel = ref(false);
 const STORAGE_KEY = "editorjs-demo-content";
 
 const currentLang = ref<LanguageCode>(getCurrentLanguage());
@@ -128,9 +129,11 @@ async function onClear(): Promise<void> {
 <template>
   <div class="app-shell">
     <header class="topbar">
-      <h1>Editor.js Editor</h1>
+      <div class="topbar__left">
+        <h1>Editor.js Editor</h1>
+      </div>
 
-      <div class="toolbar-row">
+      <div class="topbar__right">
         <label class="field-group">
           <span>Language</span>
           <select v-model="currentLang">
@@ -165,18 +168,33 @@ async function onClear(): Promise<void> {
           >
             Load Template
           </button>
+
           <button id="btn-save" type="button" @click="onSave">
             Save
           </button>
+
           <button id="btn-clear" type="button" @click="onClear">
             Clear
+          </button>
+
+          <button
+            id="btn-toggle-json"
+            type="button"
+            @click="showDeveloperPanel = !showDeveloperPanel"
+          >
+            {{ showDeveloperPanel ? "Hide JSON" : "Show JSON" }}
           </button>
         </div>
       </div>
     </header>
 
-    <main class="layout">
-      <section class="panel">
+    <main
+      class="layout"
+      :class="{
+        'layout--single': !showDeveloperPanel,
+      }"
+    >
+      <section class="panel panel--editor">
         <h2>Editor</h2>
 
         <EditorHost
@@ -191,7 +209,111 @@ async function onClear(): Promise<void> {
         </p>
       </section>
 
-      <DeveloperPanel :output="output" />
+      <DeveloperPanel
+        v-if="showDeveloperPanel"
+        :output="output"
+      />
     </main>
   </div>
 </template>
+
+<style scoped>
+.app-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.topbar__left {
+  flex: 0 0 auto;
+}
+
+.topbar__left h1 {
+  margin: 0;
+}
+
+.topbar__right {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 12px;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-group span {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.field-group select {
+  min-width: 180px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+.layout--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.panel--editor {
+  min-width: 0;
+}
+
+.panel h2 {
+  margin-top: 0;
+}
+
+.hint {
+  margin-top: 16px;
+  color: #666666;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    align-items: stretch;
+  }
+
+  .topbar__right {
+    justify-content: flex-start;
+  }
+}
+</style>

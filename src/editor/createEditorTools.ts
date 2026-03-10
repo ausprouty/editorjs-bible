@@ -22,10 +22,14 @@ import CollapsibleGroupTool from
   "./tools/CollapsibleGroupTool/CollapsibleGroupTool";
 import CollapsibleSectionTool from
   "./tools/CollapsibleSectionTool/CollapsibleSectionTool";
+import LastTimeTool from
+  "./tools/LastTimeTool/LastTimeTool";
 import NotesAreaTool from
   "./tools/NotesAreaTool/NotesAreaTool";
 import SectionMarkerTool from
   "./tools/SectionMarker/SectionMarkerTool";
+import TitleTool from
+  "./tools/TitleTool/TitleTool";
 import VideoTool from
   "./tools/VideoTool/VideoTool";
 
@@ -122,6 +126,13 @@ export function createEditorTools(lang: LanguageCode): EditorTools {
         },
       },
     },
+    lastTime: {
+      class: LastTimeTool as any,
+      config: {
+        lang,
+      },
+      
+    },
 
     list: {
       class: List as unknown as ToolConstructable,
@@ -159,5 +170,20 @@ export function createEditorTools(lang: LanguageCode): EditorTools {
       },
     },
   },
+  titleTool: {
+  class: TitleTool as any,
+  config: {
+    languages: [
+      { value: "english", label: "English" },
+      { value: "spanish", label: "Spanish" },
+      { value: "french", label: "French" },
+    ],
+    seriesOptions: [
+      { value: "multiply1", label: "Multiply 1" },
+      { value: "multiply2", label: "Multiply 2" },
+      { value: "multiply3", label: "Multiply 3" },
+    ],
+  },
+},
   };
 }
