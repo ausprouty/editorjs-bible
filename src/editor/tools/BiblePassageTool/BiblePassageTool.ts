@@ -1,5 +1,7 @@
-import { http } from "../../../lib/http";
+
+import "../shared/blockHeader.css";
 import "./BiblePassageTool.css";
+import { http } from "../../../lib/http";
 
 type BiblePassageToolConfig = {
   endpointPath?: string;
@@ -106,7 +108,7 @@ export default class BiblePassageTool {
 
     this.headerEl = document.createElement("button");
     this.headerEl.type = "button";
-    this.headerEl.className = "bible-passage-tool__header";
+    this.headerEl.className = "bible-passage-tool__header tool-header";
     this.headerEl.style.display = "none";
 
     this.passageEl = document.createElement("div");
@@ -229,13 +231,17 @@ export default class BiblePassageTool {
   private updateDisplay(): void {
     if (this.headerEl) {
       this.headerEl.innerHTML = `
-        <span class="bible-passage-tool__header-icon">✟</span>
-        <span class="bible-passage-tool__header-text">
-          Read ${this.escapeHtml(this.data.reference)}
+        <span class="tool-header__left">
+          <span class="tool-header__icon tool-header__icon--text">✟</span>
+          <span class="tool-header__text">
+            Read ${this.escapeHtml(this.data.reference)}
+          </span>
         </span>
-        <span class="bible-passage-tool__header-actions">
-          <span class="bible-passage-tool__header-edit">Edit</span>
-          <span class="bible-passage-tool__header-toggle">
+        <span class="tool-header__right">
+          <span class="tool-header__action bible-passage-tool__header-edit">
+            Edit
+          </span>
+          <span class="tool-header__toggle bible-passage-tool__header-toggle">
             ${this.data.isOpen ? "−" : "+"}
           </span>
         </span>

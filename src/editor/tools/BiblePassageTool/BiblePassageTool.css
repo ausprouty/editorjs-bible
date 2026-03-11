@@ -3,8 +3,10 @@
   border: 1px solid #d0d5dd;
   border-radius: 12px;
   background: #f8fafc;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease,
-    background-color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .bible-passage-tool:hover {
@@ -18,11 +20,34 @@
   background: #fffaf9;
 }
 
+.bible-passage-tool__button {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
 .bible-passage-tool__controls {
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 8px;
   margin-bottom: 10px;
+}
+
+.bible-passage-tool__header {
+  display: none;
+}
+
+.bible-passage-tool__header-edit {
+  display: inline-flex;
+  align-items: center;
+}
+
+.bible-passage-tool__header-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bible-passage-tool__input {
@@ -34,12 +59,13 @@
   font-size: 14px;
 }
 
-.bible-passage-tool__button {
-  padding: 10px 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
+.bible-passage-tool__passage {
+  margin-top: 10px;
+  padding: 14px 16px;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
   background: #ffffff;
-  cursor: pointer;
+  line-height: 1.7;
 }
 
 .bible-passage-tool__status {
@@ -51,68 +77,10 @@
   color: #b42318;
 }
 
-.bible-passage-tool__status[data-state="success"] {
-  color: #067647;
-}
-
 .bible-passage-tool__status[data-state="info"] {
   color: #175cd3;
 }
 
-.bible-passage-tool__header {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 12px;
-  padding: 16px 18px;
-  border: 0;
-  border-radius: 8px;
-  background: #e31b23;
-  color: #ffffff;
-  font-size: 22px;
-  font-weight: 700;
-  text-align: left;
-  cursor: pointer;
-}
-
-.bible-passage-tool__header-icon {
-  flex: 0 0 auto;
-  font-size: 18px;
-}
-
-.bible-passage-tool__header-text {
-  flex: 1 1 auto;
-}
-
-.bible-passage-tool__header-toggle {
-  flex: 0 0 auto;
-  font-size: 22px;
-  line-height: 1;
-}
-
-.bible-passage-tool__passage {
-  margin-top: 10px;
-  padding: 14px 16px;
-  border: 1px solid #e4e7ec;
-  border-radius: 8px;
-  background: #ffffff;
-  line-height: 1.7;
-}
-.bible-passage-tool__header-actions {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex: 0 0 auto;
-}
-
-.bible-passage-tool__header-edit {
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: underline;
-  opacity: 0.95;
-}
-
-.bible-passage-tool__header-toggle {
-  font-size: 22px;
-  line-height: 1;
+.bible-passage-tool__status[data-state="success"] {
+  color: #067647;
 }

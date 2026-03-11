@@ -12,6 +12,8 @@ import {
 import { createEditor } from "../../editor/createEditor";
 import type { LanguageCode } from "../../i18n";
 
+type InsertBlockData = Record<string, unknown>;
+
 const props = defineProps<{
   lang: LanguageCode;
   modelValue?: OutputData;
@@ -22,13 +24,39 @@ const emit = defineEmits<{
   (e: "ready"): void;
 }>();
 
+
+
+
 const holderId = "editorjs-host";
 const editorInstance = ref<EditorJS | null>(null);
 const isApplyingExternalData = ref(false);
 const lastSavedJson = ref("");
+let rootElement: HTMLElement | null = null;
 
 function stableStringify(value: unknown): string {
   return JSON.stringify(value ?? null);
+}
+
+function getEmptyOutput(): OutputData {
+  return {
+    blocks: [],
+    time: Date.now(),
+    version: "2.31.4",
+  };
+}
+
+async function syncFromEditor(): Promise<OutputData | null> {
+  const editor = editorInstance.value;
+
+  if (!editor) {
+    return null;
+  }
+
+  const output = await editor.save();
+  lastSavedJson.value = stableStringify(output);
+  emit("update:modelValue", output);
+
+  return output;
 }
 
 async function createEditorInstance(): Promise<void> {
@@ -84,29 +112,62 @@ async function emitSavedOutput(): Promise<void> {
   emit("update:modelValue", output);
 }
 
-onMounted(async () => {
-  await createEditorInstance();
+function bindEditorListeners(): void {
+  rootElement = document.getElementById(holderId);
+
+  if (!rootElement) {
+    return;
+  }
 
   const saver = async () => {
     await emitSavedOutput();
   };
 
-  const root = document.getElementById(holderId);
+  rootElement.addEventListener("input", saver);
+  rootElement.addEventListener("focusout", saver);
 
-  if (root) {
-    root.addEventListener("input", saver);
-    root.addEventListener("focusout", saver);
+  (rootElement as HTMLElement & {
+    __editorHostSaver__?: () => Promise<void>;
+  }).__editorHostSaver__ = saver;
+}
+
+function unbindEditorListeners(): void {
+  if (!rootElement) {
+    return;
   }
+
+  const typedRoot = rootElement as HTMLElement & {
+    __editorHostSaver__?: () => Promise<void>;
+  };
+
+  if (typedRoot.__editorHostSaver__) {
+    rootElement.removeEventListener("input", typedRoot.__editorHostSaver__);
+    rootElement.removeEventListener(
+      "focusout",
+      typedRoot.__editorHostSaver__
+    );
+    delete typedRoot.__editorHostSaver__;
+  }
+
+  rootElement = null;
+}
+
+onMounted(async () => {
+  await createEditorInstance();
+  bindEditorListeners();
 });
 
 onBeforeUnmount(async () => {
+  unbindEditorListeners();
   await destroyEditorInstance();
 });
 
 watch(
   () => props.lang,
   async () => {
+    unbindEditorListeners();
     await rebuildEditor();
+    bindEditorListeners();
   }
 );
 
@@ -128,13 +189,7 @@ watch(
     isApplyingExternalData.value = true;
 
     try {
-      await editor.render(
-        newValue || {
-          blocks: [],
-          time: Date.now(),
-          version: "2.31.4",
-        }
-      );
+      await editor.render(newValue || getEmptyOutput());
 
       const saved = await editor.save();
       lastSavedJson.value = stableStringify(saved);
@@ -147,16 +202,7 @@ watch(
 
 defineExpose({
   async save(): Promise<OutputData | null> {
-    const editor = editorInstance.value;
-
-    if (!editor) {
-      return null;
-    }
-
-    const output = await editor.save();
-    lastSavedJson.value = stableStringify(output);
-    emit("update:modelValue", output);
-    return output;
+    return await syncFromEditor();
   },
 
   async clear(): Promise<void> {
@@ -167,10 +213,7 @@ defineExpose({
     }
 
     await editor.clear();
-
-    const output = await editor.save();
-    lastSavedJson.value = stableStringify(output);
-    emit("update:modelValue", output);
+    await syncFromEditor();
   },
 
   async render(output: OutputData): Promise<void> {
@@ -184,12 +227,31 @@ defineExpose({
 
     try {
       await editor.render(output);
-      const saved = await editor.save();
-      lastSavedJson.value = stableStringify(saved);
-      emit("update:modelValue", saved);
+      await syncFromEditor();
     } finally {
       isApplyingExternalData.value = false;
     }
+  },
+
+  async insertBlock(
+    type: string,
+    data?: InsertBlockData
+  ): Promise<void> {
+    const editor = editorInstance.value;
+
+    if (!editor) {
+      return;
+    }
+
+    await editor.blocks.insert(
+      type,
+      data || {},
+      undefined,
+      undefined,
+      true
+    );
+
+    await syncFromEditor();
   },
 });
 </script>

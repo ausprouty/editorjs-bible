@@ -4,6 +4,7 @@ import { computed, ref, useTemplateRef, watch } from "vue";
 
 import DeveloperPanel from "../components/editor/DeveloperPanel.vue";
 import EditorHost from "../components/editor/EditorHost.vue";
+import InsertPanel from "../components/editor/InsertPanel.vue";
 import {
   languageOptions,
   type LanguageCode,
@@ -17,12 +18,30 @@ import {
   loadTemplateFile,
 } from "../templates";
 
+type EditorHostExposed = {
+  clear: () => Promise<void>;
+  insertBlock: (
+    type: string,
+    data?: Record<string, unknown>
+  ) => Promise<void>;
+  render: (output: OutputData) => Promise<void>;
+  save: () => Promise<OutputData | null>;
+};
+
 const showDeveloperPanel = ref(false);
 const STORAGE_KEY = "editorjs-demo-content";
 
 const currentLang = ref<LanguageCode>(getCurrentLanguage());
 const output = ref<OutputData | undefined>(loadInitialData());
-const editorHost = useTemplateRef("editorHost");
+const editorHost = useTemplateRef<EditorHostExposed>("editorHost");
+
+function getEmptyOutput(): OutputData {
+  return {
+    blocks: [],
+    time: Date.now(),
+    version: "2.31.4",
+  };
+}
 
 function loadInitialData(): OutputData | undefined {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -67,6 +86,17 @@ watch(currentLang, (value) => {
   setCurrentLanguage(value);
 });
 
+async function onInsertBlock(
+  type: string,
+  initialData?: Record<string, unknown>
+): Promise<void> {
+  if (!editorHost.value) {
+    return;
+  }
+
+  await editorHost.value.insertBlock(type, initialData);
+}
+
 async function onLoadTemplate(): Promise<void> {
   if (!selectedTemplateKey.value) {
     return;
@@ -83,7 +113,7 @@ async function onLoadTemplate(): Promise<void> {
 
   const nextOutput: OutputData = {
     time: Date.now(),
-    version: "2.30.0",
+    version: "2.31.4",
     blocks: templateFile.blocks,
   };
 
@@ -112,12 +142,7 @@ async function onSave(): Promise<void> {
 async function onClear(): Promise<void> {
   localStorage.removeItem(STORAGE_KEY);
 
-  const cleared: OutputData = {
-    blocks: [],
-    time: Date.now(),
-    version: "0.0.0",
-  };
-
+  const cleared = getEmptyOutput();
   output.value = cleared;
 
   if (editorHost.value) {
@@ -191,7 +216,7 @@ async function onClear(): Promise<void> {
     <main
       class="layout"
       :class="{
-        'layout--single': !showDeveloperPanel,
+        'layout--with-json': showDeveloperPanel,
       }"
     >
       <section class="panel panel--editor">
@@ -204,10 +229,11 @@ async function onClear(): Promise<void> {
         />
 
         <p class="hint">
-          Tip: add a block, choose “Bible Passage”, enter a
-          reference, then fetch.
+          Tip: add a block from the panel on the right.
         </p>
       </section>
+
+      <InsertPanel @insert="onInsertBlock" />
 
       <DeveloperPanel
         v-if="showDeveloperPanel"
@@ -219,7 +245,7 @@ async function onClear(): Promise<void> {
 
 <style scoped>
 .app-shell {
-  max-width: 1280px;
+  max-width: 1520px;
   margin: 0 auto;
   padding: 24px;
 }
@@ -274,13 +300,13 @@ async function onClear(): Promise<void> {
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-columns: minmax(0, 1fr) 280px;
   gap: 24px;
   align-items: start;
 }
 
-.layout--single {
-  grid-template-columns: minmax(0, 1fr);
+.layout--with-json {
+  grid-template-columns: minmax(0, 1fr) 280px 360px;
 }
 
 .panel {
@@ -303,11 +329,14 @@ async function onClear(): Promise<void> {
   color: #666666;
 }
 
-@media (max-width: 900px) {
-  .layout {
+@media (max-width: 1100px) {
+  .layout,
+  .layout--with-json {
     grid-template-columns: 1fr;
   }
+}
 
+@media (max-width: 900px) {
   .topbar {
     align-items: stretch;
   }
