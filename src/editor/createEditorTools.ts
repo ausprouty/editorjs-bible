@@ -13,11 +13,12 @@ import Quote from "@editorjs/quote";
 
 import {
   DEFAULT_BIBLE_ENDPOINT_PATH,
-  DEFAULT_BIBLE_LANGUAGE_CODE,
   IMAGE_UPLOAD_URL,
 } from "./editorConfig";
 import BiblePassageTool from
   "./tools/BiblePassageTool/BiblePassageTool";
+import BibleReferenceTool from
+  "./tools/BibleReferenceTool/BibleReferenceTool";
 import CollapsibleGroupTool from
   "./tools/CollapsibleGroupTool/CollapsibleGroupTool";
 import CollapsibleTextTool from
@@ -37,12 +38,8 @@ type EditorTools = Record<string, ToolConstructable | ToolSettings>;
 
 function createNestedEditorTools(lang: LanguageCode): EditorTools {
   return {
-    biblePassage: {
-      class: BiblePassageTool as unknown as ToolConstructable,
-      config: {
-        endpointPath: DEFAULT_BIBLE_ENDPOINT_PATH,
-        languageCodeHL: lang,
-      },
+    bibleReference: {
+      class: BibleReferenceTool,
     },
 
     delimiter: {
@@ -92,7 +89,9 @@ export function createEditorTools(lang: LanguageCode): EditorTools {
         languageCodeHL: lang,
       },
     },
-
+    bibleReference: {
+      class: BibleReferenceTool,
+    },
     collapsibleGroup: {
       class: CollapsibleGroupTool as unknown as ToolConstructable,
       config: {

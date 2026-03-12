@@ -1,12 +1,11 @@
-
 import "../shared/blockHeader.css";
 import "./BiblePassageTool.css";
-import { http } from "../../../lib/http";
 
-type BiblePassageToolConfig = {
-  endpointPath?: string;
-  languageCodeHL?: string;
-};
+import {
+  fetchBiblePassage,
+  type BibleToolConfig,
+} from "../shared/bibleApi";
+import { escapeHtml } from "../shared/html";
 
 type BiblePassageToolData = {
   reference: string;
@@ -17,7 +16,7 @@ type BiblePassageToolData = {
 type EditorJSToolConstructorArgs = {
   data: Partial<BiblePassageToolData>;
   api: unknown;
-  config?: BiblePassageToolConfig;
+  config?: BibleToolConfig;
   readOnly?: boolean;
 };
 
@@ -56,7 +55,7 @@ export default class BiblePassageTool {
 
   private readonly readOnly: boolean;
   private isEditing = false;
-  private readonly config: BiblePassageToolConfig;
+  private readonly config: BibleToolConfig;
 
   private data: BiblePassageToolData;
 
@@ -82,7 +81,7 @@ export default class BiblePassageTool {
     this.isEditing = !this.data.passage;
   }
 
-   public render(): HTMLElement {
+  public render(): HTMLElement {
     this.wrapper = document.createElement("div");
     this.wrapper.className = "bible-passage-tool";
 
@@ -123,12 +122,15 @@ export default class BiblePassageTool {
         void this.fetchPassage();
       });
 
-      this.referenceInput.addEventListener("keydown", (event: KeyboardEvent) => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          void this.fetchPassage();
-        }
-      });
+      this.referenceInput.addEventListener(
+        "keydown",
+        (event: KeyboardEvent) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            void this.fetchPassage();
+          }
+        },
+      );
 
       this.headerEl.addEventListener("click", (event: MouseEvent) => {
         const target = event.target as HTMLElement | null;
@@ -155,7 +157,9 @@ export default class BiblePassageTool {
     this.wrapper.appendChild(this.statusEl);
     this.wrapper.appendChild(this.headerEl);
     this.wrapper.appendChild(this.passageEl);
+
     this.syncOpenState();
+
     return this.wrapper;
   }
 
@@ -173,17 +177,7 @@ export default class BiblePassageTool {
     this.setStatus("Loading passage...", "info");
 
     try {
-      const endpointPath = this.config.endpointPath ?? "/v2/bible/passage";
-      const languageCodeHL = this.config.languageCodeHL ?? "eng00";
-
-      const payload = {
-        entry: reference,
-        languageCodeHL,
-      };
-
-      const res = await http.post(endpointPath, payload);
-      const data: unknown = res && res.data ? res.data : res;
-      const passageText = this.extractPassageFromJson(data).trim();
+      const passageText = await fetchBiblePassage(reference, this.config);
 
       if (!passageText) {
         throw new Error("No passage text returned from API");
@@ -206,7 +200,6 @@ export default class BiblePassageTool {
       this.setLoading(false);
     }
   }
-
 
   private showControlsForEditing(): void {
     this.isEditing = true;
@@ -234,7 +227,7 @@ export default class BiblePassageTool {
         <span class="tool-header__left">
           <span class="tool-header__icon tool-header__icon--text">✟</span>
           <span class="tool-header__text">
-            Read ${this.escapeHtml(this.data.reference)}
+            Read ${escapeHtml(this.data.reference)}
           </span>
         </span>
         <span class="tool-header__right">
@@ -256,8 +249,7 @@ export default class BiblePassageTool {
     this.syncOpenState();
   }
 
-
- private syncOpenState(): void {
+  private syncOpenState(): void {
     if (!this.headerEl || !this.passageEl || !this.controlsEl) {
       return;
     }
@@ -280,59 +272,8 @@ export default class BiblePassageTool {
     }
   }
 
-  
-
   private formatPassage(text: string): string {
     return text;
-  }
-
-  private extractPassageFromJson(json: unknown): string {
-    if (!json) return "";
-
-    if (typeof json === "string") return json;
-
-    if (typeof json === "object" && json !== null) {
-      const obj = json as Record<string, unknown>;
-
-      const passage = obj["passage"];
-      if (typeof passage === "string") return passage;
-
-      const text = obj["text"];
-      if (typeof text === "string") return text;
-
-      const content = obj["content"];
-      if (typeof content === "string") return content;
-
-      const verses = obj["verses"];
-      if (Array.isArray(verses)) {
-        const lines: string[] = [];
-        for (const v of verses) {
-          if (typeof v === "string") {
-            lines.push(v);
-            continue;
-          }
-          if (typeof v === "object" && v !== null) {
-            const verseObj = v as Record<string, unknown>;
-            const vt = verseObj["text"];
-            const vn = verseObj["verse"];
-            if (typeof vt === "string" && typeof vn !== "undefined") {
-              lines.push(`${String(vn)}. ${vt}`);
-            } else if (typeof vt === "string") {
-              lines.push(vt);
-            }
-          }
-        }
-        return lines.filter(Boolean).join("\n");
-      }
-
-      try {
-        return JSON.stringify(obj, null, 2);
-      } catch {
-        return "";
-      }
-    }
-
-    return "";
   }
 
   public save(): BiblePassageToolData {
@@ -354,26 +295,23 @@ export default class BiblePassageTool {
   private setLoading(isLoading: boolean): void {
     if (this.fetchButton) {
       this.fetchButton.disabled = isLoading || this.readOnly;
-      this.fetchButton.textContent = isLoading ? "Loading..." : "Fetch passage";
+      this.fetchButton.textContent = isLoading
+        ? "Loading..."
+        : "Fetch passage";
     }
+
     if (this.referenceInput) {
       this.referenceInput.disabled = isLoading || this.readOnly;
     }
   }
 
   private setStatus(message: string, type: string): void {
-    if (!this.statusEl) return;
+    if (!this.statusEl) {
+      return;
+    }
+
     this.statusEl.textContent = message;
     this.statusEl.dataset.state = type;
     this.statusEl.style.display = message ? "block" : "none";
-  }
-
-  private escapeHtml(value: string): string {
-    return value
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
   }
 }

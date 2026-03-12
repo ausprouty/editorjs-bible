@@ -69,7 +69,7 @@ export default class NotesAreaTool implements BlockTool {
       "for",
       `notes-area-tool-textarea-${this.data.id}`
     );
-    labelEl.textContent = t(lang, "common.spiritLedInsights");
+    labelEl.textContent = t(lang, "common.notesClickOutsideToSave");
 
     this.textareaEl = document.createElement("textarea");
     this.textareaEl.className = "notes-area-tool__textarea";

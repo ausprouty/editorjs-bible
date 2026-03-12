@@ -1,17 +1,13 @@
 import BiblePassageTool from "./tools/BiblePassageTool/BiblePassageTool";
+import BibleReferenceTool  from "./tools/BibleReferenceTool/BibleReferenceTool";
 import CollapsibleGroupTool from "./tools/CollapsibleGroupTool/CollapsibleGroupTool";
-import CollapsibleSectionTool from "./tools/CollapsibleTextTool/CollapsibleTextTool";
+import CollapsibleTextTool from "./tools/CollapsibleTextTool/CollapsibleTextTool";
+import ImageTool from "@editorjs/image";
+import LastTimeTool from "./tools/LastTimeTool/LastTimeTool";
 import NotesAreaTool from "./tools/NotesAreaTool/NotesAreaTool";
 import SectionMarkerTool from "./tools/SectionMarker/SectionMarkerTool";
 import TitleTool from "./tools/TitleTool/TitleTool";
 import VideoTool from "./tools/VideoTool/VideoTool";
-
-// Replace this import with your real image tool import path
-import ImageTool from "@editorjs/image";
-
-// Replace this with your real LastTime tool import path
-import LastTimeTool from "./tools/LastTimeTool/LastTimeTool";
-import CollapsibleTextTool from "./tools/CollapsibleTextTool/CollapsibleTextTool";
 
 export type InsertToolItem = {
   type: string;
@@ -31,6 +27,11 @@ function getToolboxMeta(toolClass: any, fallbackTitle: string) {
 const biblePassageMeta = getToolboxMeta(
   BiblePassageTool,
   "Bible Passage"
+);
+
+const bibleReferenceMeta = getToolboxMeta(
+  BibleReferenceTool,
+  "Bible Reference"
 );
 const collapsibleGroupMeta = getToolboxMeta(
   CollapsibleGroupTool,
@@ -71,6 +72,15 @@ export const insertToolPalette: InsertToolItem[] = [
       reference: "",
       passage: "",
       isOpen: true,
+    },
+  },
+  {
+    type: "bibleReference",
+    label: bibleReferenceMeta.label,
+    icon: bibleReferenceMeta.icon,
+    initialData: {
+      text: "",
+      references: [],
     },
   },
   {
