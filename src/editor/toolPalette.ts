@@ -1,6 +1,6 @@
 import BiblePassageTool from "./tools/BiblePassageTool/BiblePassageTool";
 import CollapsibleGroupTool from "./tools/CollapsibleGroupTool/CollapsibleGroupTool";
-import CollapsibleSectionTool from "./tools/CollapsibleSectionTool/CollapsibleSectionTool";
+import CollapsibleSectionTool from "./tools/CollapsibleTextTool/CollapsibleTextTool";
 import NotesAreaTool from "./tools/NotesAreaTool/NotesAreaTool";
 import SectionMarkerTool from "./tools/SectionMarker/SectionMarkerTool";
 import TitleTool from "./tools/TitleTool/TitleTool";
@@ -11,6 +11,7 @@ import ImageTool from "@editorjs/image";
 
 // Replace this with your real LastTime tool import path
 import LastTimeTool from "./tools/LastTimeTool/LastTimeTool";
+import CollapsibleTextTool from "./tools/CollapsibleTextTool/CollapsibleTextTool";
 
 export type InsertToolItem = {
   type: string;
@@ -35,9 +36,9 @@ const collapsibleGroupMeta = getToolboxMeta(
   CollapsibleGroupTool,
   "Collapsible Group"
 );
-const collapsibleSectionMeta = getToolboxMeta(
-  CollapsibleSectionTool,
-  "Collapsible Section"
+const collapsibleTextMeta = getToolboxMeta(
+  CollapsibleTextTool,
+  "Collapsible Text"
 );
 const imageMeta = getToolboxMeta(ImageTool, "Image");
 const lastTimeMeta = getToolboxMeta(LastTimeTool, "Last Time");
@@ -83,9 +84,9 @@ export const insertToolPalette: InsertToolItem[] = [
     },
   },
   {
-    type: "collapsibleSection",
-    label: collapsibleSectionMeta.label,
-    icon: collapsibleSectionMeta.icon,
+    type: "collapsibleText",
+    label: collapsibleTextMeta.label,
+    icon: collapsibleTextMeta.icon,
     initialData: {
       heading: "",
       body: "",

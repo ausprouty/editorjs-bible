@@ -20,8 +20,8 @@ import BiblePassageTool from
   "./tools/BiblePassageTool/BiblePassageTool";
 import CollapsibleGroupTool from
   "./tools/CollapsibleGroupTool/CollapsibleGroupTool";
-import CollapsibleSectionTool from
-  "./tools/CollapsibleSectionTool/CollapsibleSectionTool";
+import CollapsibleTextTool from
+  "./tools/CollapsibleTextTool/CollapsibleTextTool";
 import LastTimeTool from
   "./tools/LastTimeTool/LastTimeTool";
 import NotesAreaTool from
@@ -41,7 +41,7 @@ function createNestedEditorTools(lang: LanguageCode): EditorTools {
       class: BiblePassageTool as unknown as ToolConstructable,
       config: {
         endpointPath: DEFAULT_BIBLE_ENDPOINT_PATH,
-        languageCodeHL: DEFAULT_BIBLE_LANGUAGE_CODE,
+        languageCodeHL: lang,
       },
     },
 
@@ -89,7 +89,7 @@ export function createEditorTools(lang: LanguageCode): EditorTools {
       class: BiblePassageTool as unknown as ToolConstructable,
       config: {
         endpointPath: DEFAULT_BIBLE_ENDPOINT_PATH,
-        languageCodeHL: DEFAULT_BIBLE_LANGUAGE_CODE,
+        languageCodeHL: lang,
       },
     },
 
@@ -101,8 +101,8 @@ export function createEditorTools(lang: LanguageCode): EditorTools {
       },
     },
 
-    collapsibleSection: {
-      class: CollapsibleSectionTool as unknown as ToolConstructable,
+    collapsibleText: {
+      class: CollapsibleTextTool as unknown as ToolConstructable,
     },
 
     delimiter: {
@@ -157,33 +157,33 @@ export function createEditorTools(lang: LanguageCode): EditorTools {
       class: SectionMarkerTool as unknown as ToolConstructable,
     },
     videoEmbed: {
-    class: VideoTool as any,
-    config: {
-      labels: {
-        untitledVideo: t(lang, "untitledVideo"),
-        watchOnlineTemplate: t(lang, "watchPassageOnline"),
-        titleLabel: t(lang, "title"),
-        urlLabel: t(lang, "videoUrl"),
-        startLabel: t(lang, "startTime"),
-        endLabel: t(lang, "endTime"),
-        previewUnavailable: t(lang, "videoPreviewUnavailable"),
+      class: VideoTool as any,
+      config: {
+        labels: {
+          untitledVideo: t(lang, "untitledVideo"),
+          watchOnlineTemplate: t(lang, "watchPassageOnline"),
+          titleLabel: t(lang, "title"),
+          urlLabel: t(lang, "videoUrl"),
+          startLabel: t(lang, "startTime"),
+          endLabel: t(lang, "endTime"),
+          previewUnavailable: t(lang, "videoPreviewUnavailable"),
+        },
       },
     },
-  },
-  titleTool: {
-  class: TitleTool as any,
-  config: {
-    languages: [
-      { value: "english", label: "English" },
-      { value: "spanish", label: "Spanish" },
-      { value: "french", label: "French" },
-    ],
-    seriesOptions: [
-      { value: "multiply1", label: "Multiply 1" },
-      { value: "multiply2", label: "Multiply 2" },
-      { value: "multiply3", label: "Multiply 3" },
-    ],
-  },
-},
+    titleTool: {
+      class: TitleTool as any,
+      config: {
+        languages: [
+          { value: "english", label: "English" },
+          { value: "spanish", label: "Spanish" },
+          { value: "french", label: "French" },
+        ],
+        seriesOptions: [
+          { value: "multiply1", label: "Multiply 1" },
+          { value: "multiply2", label: "Multiply 2" },
+          { value: "multiply3", label: "Multiply 3" },
+        ],
+      },
+    },
   };
 }
