@@ -87,7 +87,7 @@ export function createEditorTools(lang: LanguageCode): EditorTools {
       class: BiblePassageTool as unknown as ToolConstructable,
       config: {
         endpointPath: DEFAULT_BIBLE_ENDPOINT_PATH,
-        languageCodeHL: lang,
+        languageCodeIso: lang,
       },
     },
     bibleReference: {

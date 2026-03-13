@@ -2,7 +2,7 @@ import { http } from "../../../lib/http";
 
 export type BibleToolConfig = {
   endpointPath?: string;
-  languageCodeHL?: string;
+  languageCodeIso?: string;
 };
 
 export async function fetchBiblePassage(
@@ -10,11 +10,11 @@ export async function fetchBiblePassage(
   config: BibleToolConfig
 ): Promise<string> {
   const endpointPath = config.endpointPath ?? "/v2/bible/passage";
-  const languageCodeHL = config.languageCodeHL ?? "eng00";
+  const languageCodeIso = config.languageCodeIso ?? "eng00";
 
   const payload = {
     entry: reference,
-    languageCodeHL,
+    languageCodeIso,
   };
 
   const res = await http.post(endpointPath, payload);
