@@ -8,5 +8,6 @@ export type BibleReferenceItem = {
 export type BibleReferenceToolData = {
   text: string;
   references: BibleReferenceItem[];
+  isOpen?: boolean;
 };
 

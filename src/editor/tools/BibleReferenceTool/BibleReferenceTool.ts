@@ -20,7 +20,9 @@ export default class BibleReferenceTool {
   private data: BibleReferenceToolData;
   private readonly readOnly: boolean;
   private readonly config: BibleToolConfig;
-
+  private isEditing = true;
+  private headerEl!: HTMLButtonElement;
+  private bodyEl!: HTMLDivElement;
   private wrapper!: HTMLDivElement;
   private textArea!: HTMLTextAreaElement;
   private refsWrap!: HTMLDivElement;
@@ -46,7 +48,11 @@ export default class BibleReferenceTool {
             passage: ref.passage || "",
           }))
         : [],
+      isOpen: typeof data?.isOpen === "boolean"
+            ? data.isOpen
+            : true,
     };
+    this.isEditing = !this.readOnly;
   }
 
   public static get toolbox() {
@@ -117,6 +123,13 @@ export default class BibleReferenceTool {
     label.className = "bible-reference-tool__label";
     label.textContent =
       "Type text with references in braces, e.g. {Luke 1:3}";
+
+    this.headerEl = document.createElement("button");
+    this.headerEl.type = "button";
+    this.headerEl.className = "bible-reference-tool__header";
+
+    this.bodyEl = document.createElement("div");
+    this.bodyEl.className = "bible-reference-tool__body";
 
     this.textArea = document.createElement("textarea");
     this.textArea.className = "bible-reference-tool__textarea";

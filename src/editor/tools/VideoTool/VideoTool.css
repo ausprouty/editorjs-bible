@@ -56,7 +56,35 @@
 
 .video-tool__header {
   display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
+ .video-tool__header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1 1 auto;
+ }
+ 
+ .video-tool__header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  flex: 0 0 auto;
+ }
+ 
+ .video-tool__header-text {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+ }
+
 
 .video-tool__iframe-wrap {
   position: relative;

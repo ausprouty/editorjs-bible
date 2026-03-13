@@ -452,10 +452,20 @@ export default class VideoTool {
       "Untitled video"
     );
 
-    const template = this.label(
+    let template = this.label(
       "watchOnlineTemplate",
       "Watch {title} online"
     );
+
+    if (!template || template === "watchOnlineTemplate") {
+      template = "Watch {title} online";
+    }
+
+    if (!template.includes("{title}")) {
+      template = `${template} ${displayTitle}`;
+      this.summaryText.textContent = template.trim();
+      return;
+    }
 
     this.summaryText.textContent = this.interpolate(template, {
       title: displayTitle,

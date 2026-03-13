@@ -25,6 +25,7 @@ import CollapsibleTextTool from
   "./tools/CollapsibleTextTool/CollapsibleTextTool";
 import LastTimeTool from
   "./tools/LastTimeTool/LastTimeTool";
+import OikosListTool from "./tools/OikosListTool";
 import NotesAreaTool from
   "./tools/NotesAreaTool/NotesAreaTool";
 import SectionMarkerTool from
@@ -141,6 +142,9 @@ export function createEditorTools(lang: LanguageCode): EditorTools {
     notesArea: {
       class: NotesAreaTool as unknown as ToolConstructable,
     },
+    oikosList: {
+      class: OikosListTool,
+    },
 
     paragraph: {
       class: Paragraph as unknown as ToolConstructable,
@@ -159,13 +163,13 @@ export function createEditorTools(lang: LanguageCode): EditorTools {
       class: VideoTool as any,
       config: {
         labels: {
-          untitledVideo: t(lang, "untitledVideo"),
-          watchOnlineTemplate: t(lang, "watchPassageOnline"),
-          titleLabel: t(lang, "title"),
-          urlLabel: t(lang, "videoUrl"),
-          startLabel: t(lang, "startTime"),
-          endLabel: t(lang, "endTime"),
-          previewUnavailable: t(lang, "videoPreviewUnavailable"),
+          endLabel: t(lang, "videoTool.endTime"),
+          previewUnavailable: t(lang, "videoTool.previewUnavailable"),
+          startLabel: t(lang, "videoTool.startTime"),
+          titleLabel: t(lang, "videoTool.titleLabel"),
+          untitledVideo: t(lang, "videoTool.untitledVideo"),
+          urlLabel: t(lang, "videoTool.urlLabel "),
+          watchOnlineTemplate: t(lang, "videoTool.watchOnlineTemplate"),
         },
       },
     },

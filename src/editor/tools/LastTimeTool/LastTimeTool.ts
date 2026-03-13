@@ -19,11 +19,11 @@ export default class LastTimeTool {
   private wrapper!: HTMLDivElement;
   private lang: LanguageCode;
 
-  constructor({ config }: EditorJSToolConstructorArgs) {
+  public constructor({ config }: EditorJSToolConstructorArgs) {
     this.lang = config?.lang ?? "en";
   }
 
-  static get toolbox() {
+  public static get toolbox() {
     return {
       title: "Last Time",
       icon: `
@@ -34,16 +34,14 @@ export default class LastTimeTool {
     };
   }
 
-  render(): HTMLElement {
+  public render(): HTMLElement {
     this.wrapper = document.createElement("div");
     this.wrapper.classList.add("last-time-box");
-
-    this.wrapper.textContent = t(this.lang, "common.lastTimeReminder")
-
+    this.wrapper.textContent = t(this.lang, "common.lastTimeReminder");
     return this.wrapper;
   }
 
-  save(): LastTimeToolData {
+  public save(): LastTimeToolData {
     return {};
   }
 }
